@@ -1,25 +1,25 @@
 {
-	"name": "lovefield-ts",
-	"version": "0.0.1",
-	"description": "Lovefield's TypeScript Port",
-	"homepage": "https://github.com/google/lovefield",
-	"license": "Apache-2.0",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/arthurhsu/lovefield-ts.git"
-	},
-	"devDependencies": {
-		"chalk": "*",
-		"chai": "*",
-		"chai-as-promised": "*",
-		"gulp": "*",
-		"gulp-babel": "*",
-		"gulp-minify": "*",
-		"gulp-mocha": "*",
-		"gulp-plumber": "*",
-		"gulp-sourcemaps": "*",
-		"gulp-tslint": "*",
-		"gulp-typescript": "*",
-		"gulp-uglify": "*"
-	}
+  "name": "lovefield-ts",
+  "version": "0.0.1",
+  "description": "Lovefield's TypeScript Port",
+  "homepage": "https://github.com/google/lovefield",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/arthurhsu/lovefield-ts.git"
+  },
+  "devDependencies": {
+    "chalk": "*",
+    "chai": "*",
+    "chai-as-promised": "*",
+    "gulp": "*",
+    "gulp-babel": "*",
+    "gulp-minify": "*",
+    "gulp-mocha": "*",
+    "gulp-plumber": "*",
+    "gulp-sourcemaps": "*",
+    "gulp-tslint": "*",
+    "gulp-typescript": "*",
+    "gulp-uglify": "*"
+  }
 }
