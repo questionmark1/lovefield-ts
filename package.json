@@ -12,14 +12,19 @@
     "chalk": "*",
     "chai": "*",
     "chai-as-promised": "*",
+    "fs-extra": "*",
     "gulp": "*",
     "gulp-babel": "*",
     "gulp-minify": "*",
     "gulp-mocha": "*",
     "gulp-plumber": "*",
     "gulp-sourcemaps": "*",
+    "gulp-tsd": "*",
     "gulp-tslint": "*",
     "gulp-typescript": "*",
-    "gulp-uglify": "*"
+    "gulp-uglify": "*",
+    "gulp-webserver": "*",
+    "merge-stream": "*",
+    "nopt": "*"
   }
 }
