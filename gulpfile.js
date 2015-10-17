@@ -60,26 +60,27 @@ gulp.task('build', ['tsd'], function() {
   if (target == 'lib') {
     return gulp.src('lib/**/*.ts').
             pipe(ts({
+              module: 'commonjs',
               noEmitOnError: true,
               noImplicitAny: true,
               out: 'lovefield.js'
             })).js.pipe(gulp.dest('out'));
   } else {
     // Not compiling yet, the definition of lf needs to be wired out correctly
-//    var tests = getFolders('tests');
-//    console.log(tests);
-//    var tasks = tests.map(function(folder) {
-//      return gulp.src([
-//        'lib/**/*.ts',
-//        'tests/' + folder + '/**/*.ts'
-//      ]).pipe(ts({
-//        noEmitOnError: true,
-//        noImplicitAny: true,
-//        out: folder + '_test.js'
-//      })).js.pipe(gulp.dest('out/' + folder));
-//    });
+    var tests = getFolders('tests');
+    console.log(tests);
+    var tasks = tests.map(function(folder) {
+      return gulp.src([
+        'lib/**/*.ts',
+        'tests/' + folder + '/**/*.ts'
+      ]).pipe(ts({
+        noEmitOnError: true,
+        noImplicitAny: true,
+        out: folder + '_test.js'
+      })).js.pipe(gulp.dest('out/' + folder));
+    });
 
-//    return merge(tasks);
+    return merge(tasks);
   }
 });
 

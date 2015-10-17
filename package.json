@@ -9,9 +9,9 @@
     "url": "https://github.com/arthurhsu/lovefield-ts.git"
   },
   "devDependencies": {
-    "chalk": "*",
     "chai": "*",
     "chai-as-promised": "*",
+    "chalk": "*",
     "fs-extra": "*",
     "gulp": "*",
     "gulp-babel": "*",
@@ -25,6 +25,7 @@
     "gulp-uglify": "*",
     "gulp-webserver": "*",
     "merge-stream": "*",
-    "nopt": "*"
+    "nopt": "*",
+    "typescript": "^1.6.2"
   }
 }
