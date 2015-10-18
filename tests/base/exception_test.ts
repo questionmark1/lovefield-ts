@@ -1,4 +1,8 @@
-import {Exception} from 'lf';
+/// <reference path="../../typings/mocha/mocha.d.ts" />
+/// <reference path="../../typings/chai/chai.d.ts" />
+/// <reference path="../../out/definitions/lf.d.ts" />
+
+import * as lf from 'lf';
 import {expect} from 'chai';
 
 describe('Exception Unit Tests:', () => {

@@ -15,8 +15,7 @@ var log = console.log.bind(console);
 
 function usage() {
   log('Usage:');
-  log('  gulp build --target=lib');
-  log('  gulp build --target=tests');
+  log('  gulp build [--target=lib|tests]');
   log('  gulp clean');
   log('  gulp lint');
   log('  gulp test');
@@ -55,7 +54,8 @@ var COMPILER_OPTIONS = {
   noEmitOnError: true,
   noExternalResolve: true,
   noImplicitAny: true,
-  sortOutput: true  
+  sortOutput: true,
+  target: 'ES5'
 };
 
 
@@ -65,7 +65,9 @@ function buildLib() {
           .pipe(sourcemaps.init())
           .pipe(ts(COMPILER_OPTIONS));
   return merge([
-    tsResults.dts.pipe(gulp.dest('out/definitions')),
+    tsResults.dts
+        .pipe(concat('lf.d.ts'))
+        .pipe(gulp.dest('out/definitions')),
     tsResults.js
         .pipe(concat('lf.js'))
         .pipe(sourcemaps.write())
@@ -74,44 +76,40 @@ function buildLib() {
 }
 
 
+function buildTests() {
+  // Not compiling yet, the definition of lf needs to be wired out correctly
+  var tsResults =
+      gulp.src('tests/**/*.ts')
+          .pipe(sourcemaps.init())
+          .pipe(ts(COMPILER_OPTIONS));
+  
+  return tsResults.js
+              .pipe(sourcemaps.write())
+              .pipe(gulp.dest('out/tests'));
+}
+
 gulp.task('build', ['tsd'], function() {
   var knownOpts = {
-    'target': ['lib', 'tests']
+    'target': [Array, String]
   };
   var target = nopt(knownOpts).target;
-  if (target == null) {
-    usage();
-    return;
+  
+  var targets = ['lib', 'tests'];
+  if (target != null) {
+    if (typeof(target) == 'string') {
+      targets = [target];
+    } else {
+      targets = target;
+    }
   }
-
-  if (target == 'lib') {
-    return buildLib();
-  }
-//   if (target == 'lib') {
-//     return gulp.src('lib/**/*.ts').
-//             pipe(ts({
-//               module: 'commonjs',
-//               noEmitOnError: true,
-//               noImplicitAny: true,
-//               out: 'lf.js'
-//             })).js.pipe(gulp.dest('out'));
-//   } else {
-//     // Not compiling yet, the definition of lf needs to be wired out correctly
-//     var tests = getFolders('tests');
-//     console.log(tests);
-//     var tasks = tests.map(function(folder) {
-//       return gulp.src([
-//         'lib/**/*.ts',
-//         'tests/' + folder + '/**/*.ts'
-//       ]).pipe(ts({
-//         noEmitOnError: true,
-//         noImplicitAny: true,
-//         out: folder + '_test.js'
-//       })).js.pipe(gulp.dest('out/' + folder));
-//     });
-// 
-//     return merge(tasks);
-//   }
+  
+  targets.forEach(function(buildTarget) {
+    if (buildTarget == 'lib') {
+      return buildLib();
+    } else {
+      return buildTests();
+    }
+  });
 });
 
 
