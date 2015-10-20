@@ -1,7 +1,7 @@
 /// <reference path="../../typings/tsd.d.ts" />
 /// <reference path="../../out/definitions/lf.d.ts" />
 
-//import * as lf from 'lf';
+import * as lf from 'lf';
 import {expect} from 'chai';
 
 describe('Exception Unit Tests:', () => {
