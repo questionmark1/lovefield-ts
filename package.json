@@ -25,8 +25,8 @@
     "gulp-typescript": "*",
     "gulp-uglify": "*",
     "gulp-webserver": "*",
-    "mocha": "^2.3.3",
     "merge-stream": "*",
+    "mocha": "^2.3.3",
     "nopt": "*",
     "typescript": "^1.6.2"
   }

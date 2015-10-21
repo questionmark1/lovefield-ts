@@ -9,6 +9,7 @@ var sourcemaps = require('gulp-sourcemaps');
 var webserver = require('gulp-webserver');
 var nopt = require('nopt');
 var merge = require('merge-stream');
+var mocha = require('gulp-mocha');
 
 var log = console.log.bind(console);
 
@@ -52,12 +53,32 @@ var COMPILER_OPTIONS = {
 };
 
 
+function buildDist() {
+  var tsResults =
+      gulp.src('lib/**/*.ts')
+          .pipe(sourcemaps.init())
+          .pipe(ts(COMPILER_OPTIONS));
+
+  return merge([
+    tsResults.dts
+        .pipe(concat('lf.d.ts'))
+        .pipe(gulp.dest('out/dist')),
+    tsResults.js
+        .pipe(concat('lf.js'))
+        .pipe(sourcemaps.write())
+        .pipe(gulp.dest('out/dist'))
+  ]);
+}
+
+
 function buildLib() {
   var tsResults =
       gulp.src('lib/**/*.ts')
           .pipe(sourcemaps.init())
           .pipe(ts(COMPILER_OPTIONS));
-  return tsResults.js.pipe(gulp.dest('out/lib'));
+  return tsResults.js
+      .pipe(sourcemaps.write())
+      .pipe(gulp.dest('out/lib'));
 }
 
 
@@ -76,7 +97,7 @@ gulp.task('build', ['tsd'], function() {
   };
   var target = nopt(knownOpts).target;
 
-  var targets = ['lib', 'tests'];
+  var targets = ['dist', 'lib', 'tests'];
   if (target != null) {
     if (typeof(target) == 'string') {
       targets = [target];
@@ -88,10 +109,18 @@ gulp.task('build', ['tsd'], function() {
   targets.forEach(function(buildTarget) {
     if (buildTarget == 'lib') {
       return buildLib();
+    } else if (buildTarget == 'dist') {
+      return buildDist();
     } else {
       return buildTests();
     }
   });
+});
+
+
+gulp.task('test', function() {
+  gulp.src('out/tests/**/*_test.js', {read: false})
+      .pipe(mocha({reporter: 'nyan'}));
 });
 
 
