@@ -2,7 +2,7 @@ export class Exception implements Error {
   public code: number;
   public name: string;
   public message: string;
-  constructor(code: number, ...args: string[]) {
+  constructor(code: number, ...args: any[]) {
     this.code = code;
     this.message = 'http://sn.im/2a0j3wn?c=' + code.toString();
 

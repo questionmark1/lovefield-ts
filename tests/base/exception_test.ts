@@ -1,5 +1,4 @@
-/// <reference path="../../typings/chai/chai.d.ts"/>
-/// <reference path="../../typings/mocha/mocha.d.ts"/>
+/// <reference path="../../typings/tsd.d.ts"/>
 
 import {Exception} from '../../lib/base/exception';
 import * as chai from 'chai';
@@ -14,7 +13,7 @@ describe('Exception Unit Tests:', () => {
     var e1 = new Exception(101, 'Album 1');
     chai.expect(e1.message).to.equal(BASE_URL + '101&p0=Album%201');
 
-    var e2 = new Exception(107, '2', '8');
+    var e2 = new Exception(107, 2, 8);
     chai.expect(e2.message).to.equal(BASE_URL + '107&p0=2&p1=8');
 
     var e3 = new Exception(999, 'a', 'b', 'c', 'd', 'e', 'f', 'g');
