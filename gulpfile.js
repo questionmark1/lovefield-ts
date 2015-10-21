@@ -41,20 +41,13 @@ gulp.task('tsd', function(callback) {
 });
 
 
-function getFolders(dir) {
-  return fs.readdirSync(dir).filter(function(entry) {
-    return fs.statSync(path.join(dir, entry)).isDirectory();
-  });
-}
-
-
 var COMPILER_OPTIONS = {
   declaration: true,
   module: 'commonjs',
   noEmitOnError: true,
-  noExternalResolve: true,
+  //noExternalResolve: true,
   noImplicitAny: true,
-  sortOutput: true,
+  //sortOutput: true,
   target: 'ES5'
 };
 
@@ -64,15 +57,7 @@ function buildLib() {
       gulp.src('lib/**/*.ts')
           .pipe(sourcemaps.init())
           .pipe(ts(COMPILER_OPTIONS));
-  return merge([
-    tsResults.dts
-        .pipe(concat('lf.d.ts'))
-        .pipe(gulp.dest('out/definitions')),
-    tsResults.js
-        .pipe(concat('lf.js'))
-        .pipe(sourcemaps.write())
-        .pipe(gulp.dest('out/js'))    
-  ]);
+  return tsResults.js.pipe(gulp.dest('out/lib'));
 }
 
 
@@ -82,10 +67,7 @@ function buildTests() {
       gulp.src('tests/**/*.ts')
           .pipe(sourcemaps.init())
           .pipe(ts(COMPILER_OPTIONS));
-  
-  return tsResults.js
-              .pipe(sourcemaps.write())
-              .pipe(gulp.dest('out/tests'));
+  return tsResults.js.pipe(gulp.dest('out/tests'));
 }
 
 gulp.task('build', ['tsd'], function() {
@@ -93,7 +75,7 @@ gulp.task('build', ['tsd'], function() {
     'target': [Array, String]
   };
   var target = nopt(knownOpts).target;
-  
+
   var targets = ['lib', 'tests'];
   if (target != null) {
     if (typeof(target) == 'string') {
@@ -102,7 +84,7 @@ gulp.task('build', ['tsd'], function() {
       targets = target;
     }
   }
-  
+
   targets.forEach(function(buildTarget) {
     if (buildTarget == 'lib') {
       return buildLib();
