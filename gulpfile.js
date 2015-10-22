@@ -9,7 +9,9 @@ var sourcemaps = require('gulp-sourcemaps');
 var webserver = require('gulp-webserver');
 var nopt = require('nopt');
 var merge = require('merge-stream');
-var mocha = require('gulp-mocha');
+var glob = require('glob');
+var mochaPhantomJS = require('gulp-mocha-phantomjs');
+var foreach = require('gulp-foreach');
 
 var log = console.log.bind(console);
 
@@ -44,11 +46,11 @@ gulp.task('tsd', function(callback) {
 
 var COMPILER_OPTIONS = {
   declaration: true,
-  module: 'commonjs',
+  module: 'amd',
   noEmitOnError: true,
   //noExternalResolve: true,
   noImplicitAny: true,
-  //sortOutput: true,
+  sortOutput: true,
   target: 'ES5'
 };
 
@@ -88,7 +90,9 @@ function buildTests() {
       gulp.src('tests/**/*.ts')
           .pipe(sourcemaps.init())
           .pipe(ts(COMPILER_OPTIONS));
-  return tsResults.js.pipe(gulp.dest('out/tests'));
+  return tsResults.js
+      .pipe(sourcemaps.write())
+      .pipe(gulp.dest('out/tests'));
 }
 
 gulp.task('build', ['tsd'], function() {
@@ -118,12 +122,44 @@ gulp.task('build', ['tsd'], function() {
 });
 
 
-gulp.task('test', function() {
-  gulp.src('out/tests/**/*_test.js', {read: false})
-      .pipe(mocha({reporter: 'nyan'}));
+function createTestEnv() {
+  var files = glob.sync('tests/**/*_test.ts');
+  var template = fs.readFileSync('tests/mocha.html.template', 'utf-8');
+  files.forEach(function(filePath) {
+    var scriptName = path.basename(filePath, '.ts');
+    var outputPath = path.join(
+      'out', path.dirname(filePath), scriptName + '.html');
+    var contents = template.replace('{{script}}', scriptName + '.js');
+    fs.writeFileSync(outputPath, contents);
+  });
+}
+
+
+gulp.task('test', ['build'], function() {
+  createTestEnv();
+  return gulp.src('out/tests/**/*_test.html')
+      .pipe(foreach(function(stream, file) {
+        log('[INFO] Testing', path.relative(__dirname, file.path));
+        return stream.pipe(mochaPhantomJS());
+      }));
 });
 
 
 gulp.task('lint', function() {
   // TODO(arthurhsu): integrate with tslint
+});
+
+
+gulp.task('debug', function() {
+  var knownOps = {
+    'port': [Number, null]
+  };
+  var portNumber = nopt(knownOps).port || 8000;
+
+  gulp.src('.').pipe(webserver({
+    livereload: true,
+    directoryListing: true,
+    open: false,
+    port: portNumber
+  }));
 });

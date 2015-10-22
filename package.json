@@ -13,11 +13,14 @@
     "chai-as-promised": "*",
     "chalk": "*",
     "fs-extra": "*",
+    "glob": "^5.0.15",
     "gulp": "*",
     "gulp-babel": "*",
     "gulp-concat": "*",
+    "gulp-foreach": "^0.1.0",
     "gulp-minify": "*",
     "gulp-mocha": "*",
+    "gulp-mocha-phantomjs": "^0.10.1",
     "gulp-plumber": "*",
     "gulp-sourcemaps": "*",
     "gulp-tsd": "*",
@@ -27,7 +30,9 @@
     "gulp-webserver": "*",
     "merge-stream": "*",
     "mocha": "^2.3.3",
+    "mocha-phantomjs": "^4.0.1",
     "nopt": "*",
+    "phantomjs": "^1.9.18",
     "typescript": "^1.6.2"
   }
 }
