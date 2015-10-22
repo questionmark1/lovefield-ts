@@ -4,7 +4,6 @@ var gulp = require('gulp');
 var concat = require('gulp-concat');
 var ts = require('gulp-typescript');
 var tsd = require('gulp-tsd');
-var tslint = require('gulp-tslint');
 var sourcemaps = require('gulp-sourcemaps');
 var webserver = require('gulp-webserver');
 var nopt = require('nopt');
