@@ -35,5 +35,5 @@ export namespace type {
     4: 0,  // lf.Type.NUMBER
     5: '',  // lf.Type.STRING
     6: DEFAULT_OBJECT // lf.Type.OBJECT
-  }
+  };
 }

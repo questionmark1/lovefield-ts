@@ -11,6 +11,7 @@ var merge = require('merge-stream');
 var glob = require('glob');
 var mochaPhantomJS = require('gulp-mocha-phantomjs');
 var foreach = require('gulp-foreach');
+var tslint = require('gulp-tslint');
 
 var log = console.log.bind(console);
 
@@ -145,7 +146,11 @@ gulp.task('test', ['build'], function() {
 
 
 gulp.task('lint', function() {
-  // TODO(arthurhsu): integrate with tslint
+  var lintOptions = fs.readFileSync('tslint.json', 'utf-8');
+  return gulp.src(['lib/**/*.ts', 'tests/**/*.ts'])
+      .pipe(foreach(function(stream, file) {
+        return stream.pipe(tslint(lintOptions)).pipe(tslint.report('full'));
+      }));
 });
 
 
