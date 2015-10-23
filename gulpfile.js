@@ -25,17 +25,14 @@ function usage() {
   log('  gulp test');
 }
 
-
 gulp.task('default', function() {
   usage();
 });
-
 
 gulp.task('clean', function() {
   fs.removeSync('out');
   fs.removeSync('typings');
 });
-
 
 gulp.task('tsd', function(callback) {
   tsd({
@@ -44,23 +41,16 @@ gulp.task('tsd', function(callback) {
   }, callback);
 });
 
-
-var COMPILER_OPTIONS = {
-  declaration: true,
-  //module: 'amd',
-  noEmitOnError: true,
-  //noExternalResolve: true,
-  noImplicitAny: true,
-  sortOutput: true,
-  target: 'ES6'
-};
-
+var tscConfig;
+function readCompilerOptions() {
+  tscConfig = JSON.parse(fs.readFileSync('tsc.json', 'utf-8')).compilerOptions;
+}
 
 function buildDist() {
   var tsResults =
       gulp.src('lib/**/*.ts')
           .pipe(sourcemaps.init())
-          .pipe(ts(COMPILER_OPTIONS));
+          .pipe(ts(tscConfig));
 
   return merge([
     tsResults.dts
@@ -74,25 +64,23 @@ function buildDist() {
   ]);
 }
 
-
 function buildLib() {
   var tsResults =
       gulp.src('lib/**/*.ts')
           .pipe(sourcemaps.init())
-          .pipe(ts(COMPILER_OPTIONS));
+          .pipe(ts(tscConfig));
   return tsResults.js
       .pipe(babel({modules: 'amd'}))
       .pipe(sourcemaps.write())
       .pipe(gulp.dest('out/lib'));
 }
 
-
 function buildTests() {
   // Not compiling yet, the definition of lf needs to be wired out correctly
   var tsResults =
       gulp.src('tests/**/*.ts')
           .pipe(sourcemaps.init())
-          .pipe(ts(COMPILER_OPTIONS));
+          .pipe(ts(tscConfig));
   return tsResults.js
       .pipe(babel({modules: 'amd'}))
       .pipe(sourcemaps.write())
@@ -100,6 +88,7 @@ function buildTests() {
 }
 
 gulp.task('build', ['tsd'], function() {
+  readCompilerOptions();
   var knownOpts = {
     'target': [Array, String]
   };
@@ -125,7 +114,6 @@ gulp.task('build', ['tsd'], function() {
   });
 });
 
-
 function createTestEnv() {
   var files = glob.sync('tests/**/*_test.ts');
   var template = fs.readFileSync('tests/mocha.html.template', 'utf-8');
@@ -138,7 +126,6 @@ function createTestEnv() {
   });
 }
 
-
 gulp.task('test', ['build'], function() {
   createTestEnv();
   return gulp.src('out/tests/**/*_test.html')
@@ -148,7 +135,6 @@ gulp.task('test', ['build'], function() {
       }));
 });
 
-
 gulp.task('lint', function() {
   var lintOptions = fs.readFileSync('tslint.json', 'utf-8');
   return gulp.src(['lib/**/*.ts', 'tests/**/*.ts'])
@@ -156,7 +142,6 @@ gulp.task('lint', function() {
         return stream.pipe(tslint(lintOptions)).pipe(tslint.report('full'));
       }));
 });
-
 
 gulp.task('debug', function() {
   var knownOps = {

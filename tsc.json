@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "noEmitOnError": true,
+    "noImplicitAny": true,
+    "sortOutput": true,
+    "target": "ES6"
+  }
+}
