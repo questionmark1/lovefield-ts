@@ -12,6 +12,7 @@ var glob = require('glob');
 var mochaPhantomJS = require('gulp-mocha-phantomjs');
 var foreach = require('gulp-foreach');
 var tslint = require('gulp-tslint');
+var babel = require('gulp-babel');
 
 var log = console.log.bind(console);
 
@@ -46,12 +47,12 @@ gulp.task('tsd', function(callback) {
 
 var COMPILER_OPTIONS = {
   declaration: true,
-  module: 'amd',
+  //module: 'amd',
   noEmitOnError: true,
   //noExternalResolve: true,
   noImplicitAny: true,
   sortOutput: true,
-  target: 'ES5'
+  target: 'ES6'
 };
 
 
@@ -66,6 +67,7 @@ function buildDist() {
         .pipe(concat('lf.d.ts'))
         .pipe(gulp.dest('out/dist')),
     tsResults.js
+        .pipe(babel())
         .pipe(concat('lf.js'))
         .pipe(sourcemaps.write())
         .pipe(gulp.dest('out/dist'))
@@ -79,6 +81,7 @@ function buildLib() {
           .pipe(sourcemaps.init())
           .pipe(ts(COMPILER_OPTIONS));
   return tsResults.js
+      .pipe(babel({modules: 'amd'}))
       .pipe(sourcemaps.write())
       .pipe(gulp.dest('out/lib'));
 }
@@ -91,6 +94,7 @@ function buildTests() {
           .pipe(sourcemaps.init())
           .pipe(ts(COMPILER_OPTIONS));
   return tsResults.js
+      .pipe(babel({modules: 'amd'}))
       .pipe(sourcemaps.write())
       .pipe(gulp.dest('out/tests'));
 }
