@@ -139,7 +139,7 @@ gulp.task('test', ['build'], function() {
   return gulp.src('out/tests/**/*_test.html')
       .pipe(foreach(function(stream, file) {
         log('[INFO] Testing', path.relative(__dirname, file.path));
-        return stream.pipe(mochaPhantomJS());
+        return stream.pipe(mochaPhantomJS({reporter: 'tap'}));
       }));
 });
 

@@ -1,6 +1,7 @@
-/// <reference path="../../typings/tsd.d.ts"/>
+/// <reference path="../../typings/tsd.d.ts" />
 
 import {Exception} from '../../lib/base/exception';
+import {runTest} from '../run';
 
 describe('Exception Unit Tests:', () => {
   it('should generate expected message', () => {
@@ -31,10 +32,5 @@ describe('Exception Unit Tests:', () => {
     var e4 = new Exception(999, longString);
     chai.expect(e4.message).to.equal(BASE_URL + '999&p0=' + expected);
   });
-
-  if (window.mochaPhantomJS) {
-    mochaPhantomJS.run();
-  } else {
-    mocha.run();
-  }
+  runTest();
 });

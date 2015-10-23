@@ -8,8 +8,8 @@ export class Exception implements Error {
 
     if (args.length > 0) {
       // Allow at most 4 parameters, each parameter at most 64 chars.
-      for (var i = 0; i < Math.min(4, args.length - 1); ++i) {
-        this.message += '&p' + (i - 1) + '=' +
+      for (var i = 0; i < Math.min(4, args.length); ++i) {
+        this.message += '&p' + i.toString() + '=' +
             encodeURIComponent(args[i].toString().slice(0, 64));
       }
     }
