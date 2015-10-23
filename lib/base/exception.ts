@@ -1,3 +1,5 @@
+// FILE: lib/base/exception.ts
+
 export class Exception implements Error {
   public code: number;
   public name: string;

@@ -1,3 +1,5 @@
+// FILE: lib/base/enum.ts
+
 export enum ConstraintAction {
   RESTRICT,
   CASCADE
@@ -27,13 +29,13 @@ export namespace type {
   var DEFAULT_ARRAY_BUFFER: ArrayBuffer = null;
   var DEFAULT_OBJECT: Object = null;
 
-  export var DEFAULT_VALUES = {
-    0: DEFAULT_ARRAY_BUFFER,  // lf.Type.ARRAY_BUFFER
-    1: false,  // lf.Type.BOOLEAN
-    2: Object.freeze(new Date(0)),  // lf.Type.DATE_TIME
-    3: 0,  // lf.Type.INTEGER
-    4: 0,  // lf.Type.NUMBER
-    5: '',  // lf.Type.STRING
-    6: DEFAULT_OBJECT // lf.Type.OBJECT
-  };
+  export var DEFAULT_VALUES: Map<Type, any> = new Map([
+    [Type.ARRAY_BUFFER, DEFAULT_ARRAY_BUFFER],
+    [Type.BOOLEAN, false],
+    [Type.DATE_TIME, Object.freeze(new Date(0))],
+    [Type.INTEGER, 0],
+    [Type.NUMBER, 0],
+    [Type.STRING, ''],
+    [Type.OBJECT, DEFAULT_OBJECT]
+  ]);
 }

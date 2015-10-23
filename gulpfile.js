@@ -57,10 +57,24 @@ function buildDist() {
         .pipe(concat('lf.d.ts'))
         .pipe(gulp.dest('out/dist')),
     tsResults.js
-        .pipe(babel())
+        .pipe(babel({modules: 'amd'}))
         .pipe(concat('lf.js'))
         .pipe(sourcemaps.write())
         .pipe(gulp.dest('out/dist'))
+        .on('end', function() {
+          var distJs = fs.readFileSync('out/dist/lf.js', 'utf-8');
+          var files = distJs.split('\n').filter(function(line) {
+            return line.indexOf('// FILE: ') != -1;
+          }).map(function(line) {
+            return line.substring(13);
+          });
+          var distTs = '';
+          files.forEach(function(file) {
+            console.log('reading:', file);
+            distTs += fs.readFileSync(file, 'utf-8');
+          });
+          fs.writeFileSync('out/dist/lf.ts', distTs);
+        })
   ]);
 }
 
@@ -124,6 +138,7 @@ function createTestEnv() {
     var contents = template.replace('{{script}}', scriptName + '.js');
     fs.writeFileSync(outputPath, contents);
   });
+  //fs.symlinkSync(path.resolve('out'), path.resolve('out/out'), 'junction');
 }
 
 gulp.task('test', ['build'], function() {
