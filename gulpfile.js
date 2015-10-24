@@ -70,7 +70,6 @@ function buildDist() {
           });
           var distTs = '';
           files.forEach(function(file) {
-            console.log('reading:', file);
             distTs += fs.readFileSync(file, 'utf-8');
           });
           fs.writeFileSync('out/dist/lf.ts', distTs);
@@ -138,7 +137,9 @@ function createTestEnv() {
     var contents = template.replace('{{script}}', scriptName + '.js');
     fs.writeFileSync(outputPath, contents);
   });
-  //fs.symlinkSync(path.resolve('out'), path.resolve('out/out'), 'junction');
+  if (!fs.existsSync(path.resolve('out/out'))) {
+    fs.symlinkSync(path.resolve('out'), path.resolve('out/out'), 'junction');
+  }
 }
 
 gulp.task('test', ['build'], function() {
