@@ -26,10 +26,10 @@ export enum Type {
 }
 
 export namespace type {
-  var DEFAULT_ARRAY_BUFFER: ArrayBuffer = null;
-  var DEFAULT_OBJECT: Object = null;
+  let DEFAULT_ARRAY_BUFFER: ArrayBuffer = null;
+  let DEFAULT_OBJECT: Object = null;
 
-  export var DEFAULT_VALUES: Map<Type, any> = new Map([
+  export let DEFAULT_VALUES: Map<Type, any> = new Map([
     [Type.ARRAY_BUFFER, DEFAULT_ARRAY_BUFFER],
     [Type.BOOLEAN, false],
     [Type.DATE_TIME, Object.freeze(new Date(0))],
