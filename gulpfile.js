@@ -1,18 +1,20 @@
 var fs = require('fs-extra');
+var glob = require('glob');
+var merge = require('merge-stream');
+var nopt = require('nopt');
 var path = require('path');
+
 var gulp = require('gulp');
+var babel = require('gulp-babel');
 var concat = require('gulp-concat');
+var foreach = require('gulp-foreach');
+var gulpSequence = require('gulp-sequence');
+var mochaPhantomJS = require('gulp-mocha-phantomjs');
+var sourcemaps = require('gulp-sourcemaps');
 var ts = require('gulp-typescript');
 var tsd = require('gulp-tsd');
-var sourcemaps = require('gulp-sourcemaps');
-var webserver = require('gulp-webserver');
-var nopt = require('nopt');
-var merge = require('merge-stream');
-var glob = require('glob');
-var mochaPhantomJS = require('gulp-mocha-phantomjs');
-var foreach = require('gulp-foreach');
 var tslint = require('gulp-tslint');
-var babel = require('gulp-babel');
+var webserver = require('gulp-webserver');
 
 var log = console.log.bind(console);
 
@@ -46,49 +48,54 @@ function readCompilerOptions() {
   tscConfig = JSON.parse(fs.readFileSync('tsc.json', 'utf-8')).compilerOptions;
 }
 
-function combineTs(files) {
-  // The import statements must be stripped out from combined TS to avoid
-  // errors.
-  var contents = '';
-  files.forEach(function(file) {
-    var lines = fs.readFileSync(file, 'utf-8').split('\n');
-    contents += lines.filter(function(line) {
-      return (line.substring(0, 6) != 'import');
-    }).join('\n');
-  });
-  return contents;
-}
-
-function buildDist() {
-  log('Building dist ...');
+gulp.task('combineTypeScript', function(callback) {
+  log('cts');
   var tsResults =
       gulp.src('lib/**/*.ts')
           .pipe(sourcemaps.init())
           .pipe(ts(tscConfig));
 
+  tsResults.js
+      .pipe(concat('lf.js'))
+      .pipe(gulp.dest('out/dist'))
+      .on('end', function() {
+        var distJs = fs.readFileSync('out/dist/lf.js', 'utf-8');
+        var files = distJs.split('\n').filter(function(line) {
+          return line.indexOf('// FILE: ') != -1;
+        }).map(function(line) {
+          return line.trim().split(' ').pop();
+        });
+
+        var contents = '';
+        files.forEach(function(file) {
+          var lines = fs.readFileSync(file, 'utf-8').split('\n');
+          contents += lines.filter(function(line) {
+            return (line.substring(0, 6) != 'import');
+          }).join('\n');
+        });
+        fs.writeFileSync('out/dist/lf.ts', contents);
+        log('lf wr');
+        fs.unlinkSync('out/dist/lf.js');
+        callback();
+      });
+});
+
+gulp.task('buildDist', ['combineTypeScript'], function() {
+  log('bd');
+  var tsResults =
+      gulp.src('out/dist/lf.ts')
+          .pipe(sourcemaps.init())
+          .pipe(ts(tscConfig));
+
   return merge([
-    tsResults.dts
-        .pipe(concat('lf.d.ts'))
-        .pipe(gulp.dest('out/dist')),
+    tsResults.dts,
     tsResults.js
         .pipe(babel({modules: 'amd'}))
-        .pipe(concat('lf.js'))
         .pipe(sourcemaps.write())
-        .pipe(gulp.dest('out/dist'))
-        .on('end', function() {
-          var distJs = fs.readFileSync('out/dist/lf.js', 'utf-8');
-          var files = distJs.split('\n').filter(function(line) {
-            return line.indexOf('// FILE: ') != -1;
-          }).map(function(line) {
-            return line.trim().split(' ').pop();
-          });
-          fs.writeFileSync('out/dist/lf.ts', combineTs(files));
-        })
   ]);
-}
+});
 
-function buildLib() {
-  log('Building lib ...');
+gulp.task('buildLib', function() {
   var tsResults =
       gulp.src('lib/**/*.ts')
           .pipe(sourcemaps.init())
@@ -97,10 +104,9 @@ function buildLib() {
       .pipe(babel({modules: 'amd'}))
       .pipe(sourcemaps.write())
       .pipe(gulp.dest('out/lib'));
-}
+});
 
-function buildTests() {
-  log('Buiding tests ...');
+gulp.task('buildTests', function() {
   // Not compiling yet, the definition of lf needs to be wired out correctly
   var tsResults =
       gulp.src('tests/**/*.ts')
@@ -110,33 +116,32 @@ function buildTests() {
       .pipe(babel({modules: 'amd'}))
       .pipe(sourcemaps.write())
       .pipe(gulp.dest('out/tests'));
-}
+});
 
-gulp.task('build', ['tsd'], function() {
+gulp.task('build', ['tsd'], function(callback) {
   readCompilerOptions();
   var knownOpts = {
     'target': [Array, String]
   };
   var target = nopt(knownOpts).target;
 
-  var targets = ['dist', 'lib', 'tests'];
+  var validTargets = ['lib', 'dist', 'tests'];
+  var targets = validTargets;
   if (target != null) {
-    if (typeof(target) == 'string') {
+    if (typeof(target) == 'string' && validTargets.indexOf(target) != -1) {
       targets = [target];
     } else {
-      targets = target;
+      targets = validTargets.filter(function(item) {
+        return target.indexOf(item) != -1;
+      });
     }
   }
-
-  targets.forEach(function(buildTarget) {
-    if (buildTarget == 'lib') {
-      return buildLib();
-    } else if (buildTarget == 'dist') {
-      return buildDist();
-    } else {
-      return buildTests();
-    }
+  var steps = targets.map(function(item) {
+    return 'build' + item.substring(0, 1).toUpperCase() + item.substring(1);
   });
+
+  log(steps);
+  gulpSequence(steps, callback);
 });
 
 function createTestEnv() {

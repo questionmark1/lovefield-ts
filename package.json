@@ -22,6 +22,7 @@
     "gulp-concat": "^2.6.0",
     "gulp-foreach": "^0.1.0",
     "gulp-mocha-phantomjs": "^0.10.1",
+    "gulp-sequence": "^0.4.1",
     "gulp-sourcemaps": "^1.6.0",
     "gulp-tsd": "0.0.4",
     "gulp-tslint": "^3.4.0",
