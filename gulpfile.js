@@ -79,6 +79,8 @@ gulp.task('combineTypeScript', function(callback) {
 });
 
 gulp.task('buildDist', ['combineTypeScript'], function() {
+  // First to combine TypeScript in correct ordering, and then generate the
+  // ES5 JS using babel so that all module references are correct.
   var tsResults =
       gulp.src('out/dist/lf.ts')
           .pipe(sourcemaps.init())
@@ -105,7 +107,6 @@ gulp.task('buildLib', function() {
 });
 
 gulp.task('buildTests', ['buildDist'], function() {
-  // Not compiling yet, the definition of lf needs to be wired out correctly
   var tsResults =
       gulp.src('tests/**/*.ts')
           .pipe(sourcemaps.init())
