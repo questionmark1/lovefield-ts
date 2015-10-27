@@ -23,9 +23,17 @@ function usage() {
   log('Usage:');
   log('  gulp build [--target=lib|tests]');
   log('  gulp clean');
+  log('  gulp debug [--port=<number>]');
   log('  gulp lint');
-  log('  gulp test');
+  log('  gulp test [--norebuild]');
 }
+
+var knownOpts = {
+  'norebuild': Boolean,
+  'port': [Number, null],
+  'target': [Array, String]
+};
+var options = nopt(knownOpts);
 
 gulp.task('default', function() {
   usage();
@@ -37,6 +45,11 @@ gulp.task('clean', function() {
 });
 
 gulp.task('tsd', function(callback) {
+  if (options.norebuild) {
+    callback();
+    return;
+  }
+
   tsd({
     command: 'reinstall',
     config: 'tsd.json'
@@ -118,12 +131,14 @@ gulp.task('buildTests', ['buildDist'], function() {
 });
 
 gulp.task('build', ['tsd'], function(callback) {
-  readCompilerOptions();
-  var knownOpts = {
-    'target': [Array, String]
-  };
-  var target = nopt(knownOpts).target;
+  if (options.norebuild) {
+    callback();
+    return;
+  }
 
+  var target = options.target;
+
+  readCompilerOptions();
   var validTargets = ['lib', 'dist', 'tests'];
   var targets = validTargets;
   if (target != null) {
@@ -181,10 +196,7 @@ gulp.task('lint', function() {
 
 gulp.task('debug', function() {
   createTestEnv();
-  var knownOps = {
-    'port': [Number, null]
-  };
-  var portNumber = nopt(knownOps).port || 8000;
+  var portNumber = options.port || 8000;
 
   gulp.src('.').pipe(webserver({
     livereload: true,
