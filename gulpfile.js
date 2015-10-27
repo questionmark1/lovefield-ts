@@ -49,7 +49,6 @@ function readCompilerOptions() {
 }
 
 gulp.task('combineTypeScript', function(callback) {
-  log('cts');
   var tsResults =
       gulp.src('lib/**/*.ts')
           .pipe(sourcemaps.init())
@@ -74,24 +73,23 @@ gulp.task('combineTypeScript', function(callback) {
           }).join('\n');
         });
         fs.writeFileSync('out/dist/lf.ts', contents);
-        log('lf wr');
         fs.unlinkSync('out/dist/lf.js');
         callback();
       });
 });
 
 gulp.task('buildDist', ['combineTypeScript'], function() {
-  log('bd');
   var tsResults =
       gulp.src('out/dist/lf.ts')
           .pipe(sourcemaps.init())
           .pipe(ts(tscConfig));
 
   return merge([
-    tsResults.dts,
+    tsResults.dts.pipe(gulp.dest('out/dist')),
     tsResults.js
         .pipe(babel({modules: 'amd'}))
         .pipe(sourcemaps.write())
+        .pipe(gulp.dest('out/dist'))
   ]);
 });
 
@@ -106,7 +104,7 @@ gulp.task('buildLib', function() {
       .pipe(gulp.dest('out/lib'));
 });
 
-gulp.task('buildTests', function() {
+gulp.task('buildTests', ['buildDist'], function() {
   // Not compiling yet, the definition of lf needs to be wired out correctly
   var tsResults =
       gulp.src('tests/**/*.ts')
@@ -140,7 +138,6 @@ gulp.task('build', ['tsd'], function(callback) {
     return 'build' + item.substring(0, 1).toUpperCase() + item.substring(1);
   });
 
-  log(steps);
   gulpSequence(steps, callback);
 });
 
