@@ -46,7 +46,21 @@ function readCompilerOptions() {
   tscConfig = JSON.parse(fs.readFileSync('tsc.json', 'utf-8')).compilerOptions;
 }
 
+function combineTs(files) {
+  // The import statements must be stripped out from combined TS to avoid
+  // errors.
+  var contents = '';
+  files.forEach(function(file) {
+    var lines = fs.readFileSync(file, 'utf-8').split('\n');
+    contents += lines.filter(function(line) {
+      return (line.substring(0, 6) != 'import');
+    }).join('\n');
+  });
+  return contents;
+}
+
 function buildDist() {
+  log('Building dist ...');
   var tsResults =
       gulp.src('lib/**/*.ts')
           .pipe(sourcemaps.init())
@@ -66,18 +80,15 @@ function buildDist() {
           var files = distJs.split('\n').filter(function(line) {
             return line.indexOf('// FILE: ') != -1;
           }).map(function(line) {
-            return line.substring(13);
+            return line.trim().split(' ').pop();
           });
-          var distTs = '';
-          files.forEach(function(file) {
-            distTs += fs.readFileSync(file, 'utf-8');
-          });
-          fs.writeFileSync('out/dist/lf.ts', distTs);
+          fs.writeFileSync('out/dist/lf.ts', combineTs(files));
         })
   ]);
 }
 
 function buildLib() {
+  log('Building lib ...');
   var tsResults =
       gulp.src('lib/**/*.ts')
           .pipe(sourcemaps.init())
@@ -89,6 +100,7 @@ function buildLib() {
 }
 
 function buildTests() {
+  log('Buiding tests ...');
   // Not compiling yet, the definition of lf needs to be wired out correctly
   var tsResults =
       gulp.src('tests/**/*.ts')
@@ -136,10 +148,15 @@ function createTestEnv() {
       'out', path.dirname(filePath), scriptName + '.html');
     var contents = template.replace('{{script}}', scriptName + '.js');
     fs.writeFileSync(outputPath, contents);
+
+    var jsScript = path.join('out', path.dirname(filePath), scriptName + '.js');
+    var jsContents = fs.readFileSync(jsScript, 'utf-8');
+    var newContents =
+        jsContents.replace('\'../../out/dist/lf\'', '\'../../../out/dist/lf\'');
+    if (newContents != jsContents) {
+      fs.writeFileSync(jsScript, newContents);
+    }
   });
-  if (!fs.existsSync(path.resolve('out/out'))) {
-    fs.symlinkSync(path.resolve('out'), path.resolve('out/out'), 'junction');
-  }
 }
 
 gulp.task('test', ['build'], function() {
@@ -160,6 +177,7 @@ gulp.task('lint', function() {
 });
 
 gulp.task('debug', function() {
+  createTestEnv();
   var knownOps = {
     'port': [Number, null]
   };

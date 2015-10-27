@@ -1,7 +1,6 @@
 // FILE: lib/base/global.ts
 
 import {Exception} from 'exception';
-import {ServiceId} from 'service';
 
 export class Global {
   private services_: Map<string, Object>;
@@ -22,12 +21,12 @@ export class Global {
     this.services_.clear();
   }
 
-  public registerService<T>(serviceId: ServiceId<T>, service: T): T {
-    this.services_.set(serviceId.toString(), service);
+  public registerService<T>(serviceId: string, service: T): T {
+    this.services_.set(serviceId, service);
     return service;
   }
 
-  public getService<T>(serviceId: ServiceId<T>): T {
+  public getService<T>(serviceId: string): T {
     var service = <T>this.services_.get(serviceId.toString()) || null;
     if (service == null) {
       // 7: Service {0} not registered.
@@ -36,7 +35,7 @@ export class Global {
     return service;
   }
 
-  public isRegistered<T>(serviceId: ServiceId<T>): boolean {
+  public isRegistered(serviceId: string): boolean {
     return this.services_.has(serviceId.toString());
   }
 }
