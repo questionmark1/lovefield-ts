@@ -1,8 +1,8 @@
 // FILE: lib/base/row.ts
 
-export class RawRow {
-  public id: number;
-  public value: string|Object;
+export interface RawRow {
+  id: number;
+  value: string|Object;
 }
 
 
